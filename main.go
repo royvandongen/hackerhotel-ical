@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -29,6 +30,10 @@ func downloadICal(url string) ([]byte, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New(fmt.Sprintf("Failed downloading schedule, status code: %d", resp.StatusCode))
 	}
 	defer resp.Body.Close()
 	return io.ReadAll(resp.Body)
@@ -73,7 +78,7 @@ func returnSingleLocation(w http.ResponseWriter, r *http.Request) {
 
 	newCal, err := filterICalByLocation(icalData, location)
 	if err != nil {
-		http.Error(w, "Failed to filter events", http.StatusInternalServerError)
+		http.Error(w, "Failed to filter events: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -96,6 +101,19 @@ func handleRequests() {
 
 func main() {
 	arg.MustParse(&Config)
+
+	fmt.Printf("Testing if able to download and parse: %s\n", Config.ScheduleURL)
+	icalData, err := downloadICal(Config.ScheduleURL)
+	if err != nil {
+		fmt.Printf("Failed to download iCal file: %s\n", err.Error())
+		return
+	}
+	_, err = ics.ParseCalendar(strings.NewReader(string(icalData)))
+	if err != nil {
+		fmt.Printf("Failed to parse iCal: %s\n", err.Error())
+		return
+	}
+
 	fmt.Printf("Listening on %s, Using schedule: %s\n", Config.ListenAddress, Config.ScheduleURL)
 	fmt.Println()
 	fmt.Println("Endpoints available:")
