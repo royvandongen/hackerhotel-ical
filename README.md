@@ -45,6 +45,52 @@ Options:
   --help, -h             display this help and exit
 ```
 
+## Example systemd service
+
+Extract and copy the binary to `/usr/local/bin/`
+```
+sudo tar xvfz release.tar.gz -C /usr/local/bin hackerhotel-ical
+sudo chmod 755 /usr/local/bin/hackerhotel-ical
+```
+
+Create the system service file:
+```
+sudo vi /etc/systemd/system/conference-ical.service
+```
+
+```
+[Unit]
+Description=Conference ICAL configurator
+ConditionPathExists=/usr/local/bin/hackerhotel-ical
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+Group=users
+
+WorkingDirectory=/usr/local/bin
+Environment="TOKEN=APITOKENFROMPRETALX"
+Environment="SCHEDULE_URL=https://conference.wireshark.org/sharkfest-25-us-2024/schedule/export/schedule.ics"
+ExecStart=/usr/local/bin/hackerhotel-ical
+Restart=on-failure
+RestartSec=10
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=hackerhotel-ical
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload systemd, enable and start conference-ical
+```
+systemctl daemon-reload
+systemctl enable conference-ical
+systemctl start conference-ical
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
