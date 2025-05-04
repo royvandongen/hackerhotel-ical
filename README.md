@@ -1,18 +1,19 @@
 # hackerhotel-ical
 
-A lightweight Go application that generates an iCalendar (.ics) file for the HackerHotel event. This tool allows attendees to easily import the event schedule into their preferred calendar applications.
+**hackerhotel-ical** is a lightweight Go application that generates an iCalendar (.ics) file for the HackerHotel event. It allows attendees to easily import the event schedule into their preferred calendar applications.
 
-## Features
+## ✨ Features
 
-* Fetches the latest HackerHotel event schedule and filters the location (pretalx room)
-* Facilitates easy import into calendar applications like Google Calendar, Apple Calendar, Outlook, and more.
-* Used in Dakboard for per room schedules
+- Fetches the latest HackerHotel schedule from Pretalx
+- Filters schedule by room/location
+- Supports import into Google Calendar, Apple Calendar, Outlook, and more
+- Compatible with Dakboard and other digital signage solutions (per-room schedules)
 
-## Installation
+## 🛠️ Installation
 
 ### Prerequisites
 
-* Go 1.20 or higher
+- Go 1.20 or higher
 
 ### Clone the Repository
 
@@ -27,35 +28,52 @@ cd hackerhotel-ical
 go build
 ```
 
-## Usage
+## 🚀 Usage
 
-After building the application, run it using:
+After building the application, run it with:
 
 ```bash
 ./hackerhotel-ical --help
+```
+
+### Example
+
+```bash
+./hackerhotel-ical --token mysecrettoken
+```
+
+### Options
+
+```
 Usage: hackerhotel-ical [--schedule <url>] --token <token> [--listen <bind address>]
 
 Options:
   --schedule <url>, -s <url>
-                         URL to the ical schedule [default: https://pretalx.hackerhotel.nl/2025/schedule/export/schedule.ics, env: SCHEDULE_URL]
+      URL of the Pretalx schedule
+      [default: https://pretalx.hackerhotel.nl/2025/schedule/export/schedule.ics]
+      [env: SCHEDULE_URL]
+
   --token <token>, -t <token>
-                         Authentication Token [env: TOKEN]
+      Required authentication token
+      [env: TOKEN]
+
   --listen <bind address>, -l <bind address>
-                         Port to listen on [default: 0.0.0.0:5000, env: LISTEN_ADDRESS]
-  --help, -h             display this help and exit
+      Address and port to bind to
+      [default: 0.0.0.0:5000]
+      [env: LISTEN_ADDRESS]
+
+  --help, -h
+      Show this help message and exit
 ```
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-*Note: This project is currently in its early stages. Features and functionalities are subject to change.*
-
----
-
+> **Note:** This project is currently in its early stages. Features and functionality may change over time.
