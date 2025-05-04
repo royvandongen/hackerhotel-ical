@@ -13,9 +13,9 @@ import (
 )
 
 type config struct {
-	ScheduleURL   string `arg:"env:SCHEDULE_URL, -s, --scheduleUrl" help:"URL to the ical schedule" default:"https://pretalx.hackerhotel.nl/2025/schedule/export/schedule.ics"`
-	Token         string `arg:"required,env:TOKEN, -t, --token" help:"Authentication Token"`
-	ListenAddress string `arg:"env:LISTEN_ADDRESS, -l, --listen" help:"Port to listen on" default:"0.0.0.0:5000"`
+	ScheduleURL   string `arg:"env:SCHEDULE_URL, -s, --schedule" help:"URL to the ical schedule" placeholder:"<url>" default:"https://pretalx.hackerhotel.nl/2025/schedule/export/schedule.ics"`
+	Token         string `arg:"required,env:TOKEN, -t, --token" help:"Authentication Token" placeholder:"<token>"`
+	ListenAddress string `arg:"env:LISTEN_ADDRESS, -l, --listen" help:"Port to listen on" placeholder:"<bind address>" default:"0.0.0.0:5000"`
 }
 
 var Config config
