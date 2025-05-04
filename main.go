@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -56,7 +57,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func returnSingleLocation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	location := vars["id"]
+	location, err := url.QueryUnescape(vars["id"])
+	if err != nil {
+		http.Error(w, "Failed to decode location id", http.StatusInternalServerError)
+		return
+	}
 
 	fmt.Printf("returnSingleLocation: %s\n", location)
 
