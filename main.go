@@ -122,7 +122,7 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 
 	type Schedule struct {
 		Events []Event `xml:"event"`
-	}
+	} `xml:"schedule"`
 
 	var result Schedule
 
@@ -130,8 +130,8 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 		summary := ev.GetProperty(ics.ComponentPropertySummary).Value
 		parts := strings.Split(summary, " - ")
 		if len(parts) >= 2 {
-			title := strings.Join(parts[:len(parts)-1], " - ")
-			presenters := parts[len(parts)-1]
+			title := strings.ReplaceAll(strings.Join(parts[:len(parts)-1], " - "), `\,`, `,`)
+			presenters := strings.ReplaceAll(parts[len(parts)-1], `\,`, `,`)
 			result.Events = append(result.Events, Event{Title: title, Presenter: presenters})
 		}
 	}
