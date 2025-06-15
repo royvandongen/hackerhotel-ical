@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"encoding/xml"
 
 	"github.com/alexflint/go-arg"
 	ics "github.com/arran4/golang-ical"
@@ -92,10 +93,65 @@ func returnSingleLocation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	location, err := url.QueryUnescape(vars["id"])
+	if err != nil {
+		http.Error(w, "Failed to decode location id", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("returnSingleLocationXML: %s\n", location)
+
+	icalData, err := downloadICal(Config.ScheduleURL)
+	if err != nil {
+		http.Error(w, "Failed to download iCal file", http.StatusInternalServerError)
+		return
+	}
+
+	cal, err := filterICalByLocation(icalData, location)
+	if err != nil {
+		http.Error(w, "Failed to filter events: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type Event struct {
+		Title     string `xml:"title"`
+		Presenter string `xml:"presenter"`
+	}
+
+	type Schedule struct {
+		Events []Event `xml:"event"`
+	}
+
+	var result Schedule
+
+	for _, ev := range cal.Events() {
+		summary := ev.GetProperty(ics.ComponentPropertySummary).Value
+		parts := strings.Split(summary, " - ")
+		if len(parts) >= 2 {
+			title := strings.Join(parts[:len(parts)-1], " - ")
+			presenters := parts[len(parts)-1]
+			result.Events = append(result.Events, Event{Title: title, Presenter: presenters})
+		}
+	}
+
+	output, err := xml.MarshalIndent(result, "", "  ")
+	if err != nil {
+		http.Error(w, "Failed to generate XML: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/xml")
+	w.Write([]byte(xml.Header))
+	w.Write(output)
+}
+
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/location/{id}", returnSingleLocation)
+	myRouter.HandleFunc("/location/{id}/xml", returnSingleLocationXML)
 	log.Fatal(http.ListenAndServe(Config.ListenAddress, myRouter))
 }
 
