@@ -8,6 +8,7 @@
 - Filters schedule by room/location
 - Supports import into Google Calendar, Apple Calendar, Outlook, and more
 - Compatible with Dakboard and other digital signage solutions (per-room schedules)
+- Functionality to have just a plain XML (presenter/subject) output at /location/{id}/xml for use with external programs.
 
 ## 🛠️ Installation
 
