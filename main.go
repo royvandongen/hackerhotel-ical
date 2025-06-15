@@ -140,7 +140,7 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	output, err := xml.MarshalIndent(result, "", "  ")
+	output, err := xml.MarshalIndent(wrappedSchedule{Schedule: result}, "", "  ")
 	if err != nil {
 		http.Error(w, "Failed to generate XML: "+err.Error(), http.StatusInternalServerError)
 		return
