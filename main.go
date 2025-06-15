@@ -124,8 +124,8 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 		Events []Event `xml:"event"`
 	}
 
-	type wrappedSchedule struct {
-		Schedule `xml:"schedule"`
+	type scheduleWrapper struct {
+		Schedule Schedule `xml:"schedule"`
 	}
 
 	var result Schedule
@@ -140,7 +140,7 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	output, err := xml.MarshalIndent(wrappedSchedule{Schedule: result}, "", "  ")
+	output, err := xml.MarshalIndent(scheduleWrapper{Schedule: result}, "", "  ")
 	if err != nil {
 		http.Error(w, "Failed to generate XML: "+err.Error(), http.StatusInternalServerError)
 		return
