@@ -122,10 +122,14 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 
 	type Schedule struct {
 		Events []Event `xml:"event"`
-	} `xml:"schedule"`
+	}
+
+	type wrappedSchedule struct {
+		Schedule `xml:"schedule"`
+	}
 
 	var result Schedule
-
+	
 	for _, ev := range cal.Events() {
 		summary := ev.GetProperty(ics.ComponentPropertySummary).Value
 		parts := strings.Split(summary, " - ")
