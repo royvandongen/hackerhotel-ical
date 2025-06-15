@@ -125,7 +125,7 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 	} `xml:"schedule"`
 
 	var result Schedule
-	
+
 	for _, ev := range cal.Events() {
 		summary := ev.GetProperty(ics.ComponentPropertySummary).Value
 		parts := strings.Split(summary, " - ")
