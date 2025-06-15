@@ -122,9 +122,14 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 
 	type Schedule struct {
 		Events []Event `xml:"event"`
-	} `xml:"schedule"`
+	}
 
-	var result Schedule
+	type XMLSchedule struct {
+		XMLName  xml.Name `xml:"schedule"`
+		Events []Event `xml:"event"`
+	}
+
+	var result []Event
 
 	for _, ev := range cal.Events() {
 		summary := ev.GetProperty(ics.ComponentPropertySummary).Value
@@ -132,11 +137,15 @@ func returnSingleLocationXML(w http.ResponseWriter, r *http.Request) {
 		if len(parts) >= 2 {
 			title := strings.ReplaceAll(strings.Join(parts[:len(parts)-1], " - "), `\,`, `,`)
 			presenters := strings.ReplaceAll(parts[len(parts)-1], `\,`, `,`)
-			result.Events = append(result.Events, Event{Title: title, Presenter: presenters})
+			result = append(result, Event{Title: title, Presenter: presenters})
 		}
 	}
 
-	output, err := xml.MarshalIndent(result, "", "  ")
+	outputStruct := XMLSchedule{
+		Events: result,
+	}
+
+	output, err := xml.MarshalIndent(outputStruct, "", "  ")
 	if err != nil {
 		http.Error(w, "Failed to generate XML: "+err.Error(), http.StatusInternalServerError)
 		return
