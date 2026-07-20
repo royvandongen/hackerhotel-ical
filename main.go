@@ -41,18 +41,55 @@ func downloadICal(url string) ([]byte, error) {
 }
 
 // filterICalByLocation filters events in an iCal data by location and creates a new calendar with those events
-func filterICalByLocation(icalData []byte, locationFilter string) (*ics.Calendar, error) {
-	cal, err := ics.ParseCalendar(strings.NewReader(string(icalData)))
+func filterICalByLocation(
+	icalData []byte,
+	locationFilter string,
+) (*ics.Calendar, error) {
+	cal, err := ics.ParseCalendar(
+		strings.NewReader(string(icalData)),
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	newCal := ics.NewCalendar()
-	for _, event := range cal.Events() {
-		if strings.Contains(event.GetProperty(ics.ComponentPropertyLocation).Value, locationFilter) {
-			newCal.Components = append(newCal.Components, event)
+
+	// Preserve every VTIMEZONE component from the source calendar.
+	//
+	// Events contain references such as:
+	// DTSTART;TZID=CST:20260721T113000
+	//
+	// Without the corresponding VTIMEZONE component, clients may interpret
+	// CST as a fixed UTC-06:00 timezone instead of applying the included
+	// daylight-saving rules.
+	for _, component := range cal.Components {
+		if component.GetType() == ics.ComponentVTimezone {
+			newCal.Components = append(
+				newCal.Components,
+				component,
+			)
 		}
 	}
+
+	// Copy only events matching the requested location.
+	for _, event := range cal.Events() {
+		location := event.GetProperty(
+			ics.ComponentPropertyLocation,
+		)
+
+		// Avoid a panic if an event does not contain LOCATION.
+		if location == nil {
+			continue
+		}
+
+		if strings.Contains(location.Value, locationFilter) {
+			newCal.Components = append(
+				newCal.Components,
+				event,
+			)
+		}
+	}
+
 	return newCal, nil
 }
 
