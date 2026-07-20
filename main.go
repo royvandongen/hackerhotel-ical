@@ -54,21 +54,18 @@ func filterICalByLocation(
 
 	newCal := ics.NewCalendar()
 
-	// Preserve every VTIMEZONE component from the source calendar.
+	// Preserve VTIMEZONE components from the source calendar.
 	//
-	// Events contain references such as:
+	// Events may reference these using values such as:
 	// DTSTART;TZID=CST:20260721T113000
 	//
-	// Without the corresponding VTIMEZONE component, clients may interpret
-	// CST as a fixed UTC-06:00 timezone instead of applying the included
-	// daylight-saving rules.
-	for _, component := range cal.Components {
-		if component.GetType() == ics.ComponentVTimezone {
-			newCal.Components = append(
-				newCal.Components,
-				component,
-			)
-		}
+	// Without the matching VTIMEZONE definition, calendar clients may
+	// interpret CST as a fixed UTC-06:00 timezone and ignore daylight saving.
+	for _, timezone := range cal.Timezones() {
+		newCal.Components = append(
+			newCal.Components,
+			timezone,
+		)
 	}
 
 	// Copy only events matching the requested location.
@@ -77,7 +74,6 @@ func filterICalByLocation(
 			ics.ComponentPropertyLocation,
 		)
 
-		// Avoid a panic if an event does not contain LOCATION.
 		if location == nil {
 			continue
 		}
